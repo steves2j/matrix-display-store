@@ -13,11 +13,11 @@
     "build": "tsc",
     "prepublish": "tsc"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/chai": "^4.0.1",
     "@types/mocha": "^2.2.41",
     "chai": "^4.1.0",
+    "matrix-display-store": "^1.0.0",
     "mocha": "^3.4.2",
     "ts-node": "^3.2.1",
     "typescript": "^2.1.4"

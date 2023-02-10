@@ -55,6 +55,8 @@ export interface IFont {
 export class Store {
   private x: number;
   private y: number;
+  private cursorX: number;
+  private cursorY: number;
   public matrix: IMatrix;
 
   constructor(x: number, y: number) {
@@ -68,22 +70,27 @@ export class Store {
   }
 
   write(x: number, y: number, text: string, font: IFont, size: number, color: IRGBA) {
-    let cursorX = x, cursorY = y;
+    this.cursorX = x;
+    this.cursorY = y;
+    return this.writech(text,font,size,color);
+  }
+
+  writech(text: string, font: IFont, size: number, color: IRGBA) {
     for (const ch of text) {
       let c = ch.charCodeAt(0);
       if (font.classic) {
         if (ch === '\n') {
-          cursorX = x;
-          cursorY += size * 8;
+          this.cursorX = 1;
+          this.cursorY += (size * 8)+3;
           continue;
         }
-        this.drawChar(cursorX, cursorY, ch, font, size, color);
-        cursorX += size * 6;
+        this.drawChar(this.cursorX, this.cursorY, ch, font, size, color);
+        this.cursorX += size * 6;
       } else {
         const { first, last, glyphs, yAdvance, cp437 } = font;
         if (ch === '\n') {
-          cursorX = x;
-          cursorY += size * yAdvance;
+          this.cursorX = 1;
+          this.cursorY += (size * (yAdvance))+3;
           continue;
         }
         if (c > 0x7e && cp437) {
@@ -93,11 +100,13 @@ export class Store {
         if (c < first || c > last) {
           continue;
         }
-        this.drawChar(cursorX, cursorY, ch, font, size, color);
+        this.drawChar(this.cursorX, this.cursorY, ch, font, size, color);
         const glyph = glyphs[c - first];
-        cursorX += glyph[3] * size; 
+        this.cursorX += glyph[3] * size; 
       }
+      if (this.cursorX>this.x) return true;
     }
+    return false;
   }
 
   drawChar(x: number, y: number, ch: string, font: IFont, size: number, color: IRGBA) {
